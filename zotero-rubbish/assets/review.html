@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>文献阅读与判断 · Zotero Rubbish</title>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, "Microsoft YaHei", sans-serif; color: #18232b; background: #f5f7f8; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    main { max-width: 1450px; margin: auto; padding: 24px; }
+    h1 { font-size: 26px; margin: 0 0 8px; }
+    h2 { font-size: 18px; margin: 0 0 12px; }
+    p { line-height: 1.65; margin: 8px 0; }
+    .muted { color: #53616b; }
+    .section { background: white; border: 1px solid #d6dfe4; border-radius: 6px; padding: 18px; margin-top: 18px; }
+    .instruction { border-left: 4px solid #286c91; padding-left: 14px; }
+    .warning { border-left: 4px solid #aa591e; background: #fff6eb; padding: 12px; margin: 12px 0; }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: end; }
+    .control { display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
+    .search { flex: 1 1 270px; }
+    input[type="search"], select, textarea { font: inherit; border: 1px solid #afbdc7; border-radius: 4px; padding: 9px; background: white; color: inherit; }
+    input[type="checkbox"] { width: 18px; height: 18px; accent-color: #286c91; }
+    button, .file-button { font: inherit; padding: 10px 14px; border: 1px solid #afbdc7; border-radius: 4px; cursor: pointer; background: #eef3f6; color: inherit; }
+    button.primary { background: #286c91; color: white; border-color: #286c91; }
+    a { color: #1e648b; }
+    button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, a:focus-visible { outline: 3px solid #d38a19; outline-offset: 2px; }
+    .counts { padding: 12px 0; font-size: 14px; line-height: 1.7; }
+    .table-scroll { overflow-x: auto; border: 1px solid #d6dfe4; }
+    table { border-collapse: collapse; width: 100%; min-width: 960px; font-size: 14px; }
+    th, td { border-bottom: 1px solid #d6dfe4; padding: 12px 10px; vertical-align: top; text-align: left; }
+    th { background: #edf2f5; white-space: nowrap; }
+    .number { min-width: 76px; }
+    .paper { min-width: 240px; width: 31%; }
+    .basis { min-width: 220px; width: 27%; }
+    .decision-cell { min-width: 136px; }
+    .reason-cell { min-width: 180px; width: 20%; }
+    .paper-title { font-weight: 600; line-height: 1.5; overflow-wrap: anywhere; }
+    .small { font-size: 12px; line-height: 1.6; }
+    .links { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 6px; }
+    .score { font-size: 19px; font-weight: 600; }
+    .basis p { margin: 5px 0; overflow-wrap: anywhere; }
+    textarea { width: 100%; min-height: 72px; resize: vertical; }
+    .check-label { display: flex; gap: 10px; align-items: start; line-height: 1.6; margin: 14px 0; }
+    .check-label input { flex-shrink: 0; margin-top: 3px; }
+    #message { white-space: pre-wrap; overflow-wrap: anywhere; min-height: 24px; }
+    .error { color: #982d20; }
+    details summary { cursor: pointer; font-weight: 600; }
+    dl { display: grid; grid-template-columns: 110px 1fr; gap: 10px; font-size: 14px; line-height: 1.6; }
+    dt { color: #53616b; }
+    dd { margin: 0; overflow-wrap: anywhere; }
+    .empty { text-align: center; color: #53616b; padding: 24px; }
+    .file-button input { display: none; }
+    @media (max-width: 600px) {
+      main { padding: 14px; }
+      h1 { font-size: 22px; }
+      .section { padding: 14px; }
+      .toolbar > .control { flex: 1 1 140px; }
+      .toolbar > .search { flex-basis: 100%; }
+      .toolbar select { width: 100%; }
+      dl { grid-template-columns: 1fr; gap: 4px; }
+      dd { margin-bottom: 10px; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <h1>文献阅读与判断</h1>
+  <p class="muted" id="batch-info"></p>
+  <p class="instruction">先勾选计划阅读的文献，阅读后标记“保留”“暂缓”或“移入 Rubbish”。适配分帮助安排阅读顺序；“暂时看不懂”请选择暂缓。</p>
+  <details class="section">
+    <summary>本次研究画像与筛选范围</summary>
+    <dl id="profile"></dl>
+  </details>
+  <div class="warning" id="incomplete" hidden>本次清单或评分尚未完成。可以保存阅读计划，完成本轮范围后才能准备移动。</div>
+  <section class="section" aria-label="筛选与阅读">
+    <div class="toolbar">
+      <label class="control search">搜索题目、作者、编号或理由
+        <input id="search" type="search" placeholder="输入关键词">
+      </label>
+      <label class="control">显示范围
+        <select id="filter">
+          <option value="all">全部文献</option>
+          <option value="planned">计划阅读</option>
+          <option value="pending">未处理</option>
+          <option value="keep">保留</option>
+          <option value="defer">暂缓</option>
+          <option value="rubbish">移入 Rubbish</option>
+        </select>
+      </label>
+      <label class="control">排序
+        <select id="sort">
+          <option value="score-desc">适配分：高到低</option>
+          <option value="score-asc">适配分：低到高</option>
+          <option value="number">稳定编号</option>
+          <option value="title">文献题目</option>
+        </select>
+      </label>
+    </div>
+    <div class="counts" id="counts" aria-live="polite"></div>
+    <div class="toolbar" style="margin-bottom: 14px">
+      <button id="select-visible" type="button">勾选当前结果</button>
+      <button id="clear-selection" type="button">清空阅读选择</button>
+      <label class="control">批量判断（应用到已勾选文献）
+        <select id="bulk-decision">
+          <option value="keep">保留</option>
+          <option value="defer">暂缓</option>
+          <option value="rubbish">移入 Rubbish</option>
+          <option value="pending">未处理</option>
+        </select>
+      </label>
+      <button id="apply-bulk" type="button">标记已勾选文献</button>
+    </div>
+    <div class="table-scroll" tabindex="0" aria-label="文献列表，窄屏可横向滚动">
+      <table>
+        <thead><tr>
+          <th>计划阅读</th><th>编号</th><th>文献与阅读入口</th>
+          <th>适配分与依据</th><th>人工判断</th><th>判断原因（可选）</th>
+        </tr></thead>
+        <tbody id="papers"></tbody>
+      </table>
+    </div>
+  </section>
+  <section class="section" aria-label="保存人工决定">
+    <h2>保存决定，回到 AI 继续</h2>
+    <p>移入 Rubbish 时，会从全部原分类移出文献，保留原条目、PDF、笔记和批注。这里的勾选与导出只保存本地决定，Zotero 移动需由你向 AI 发出执行指令。</p>
+    <label class="check-label">
+      <input id="review-confirmed" type="checkbox">
+      <span>我已阅读所有标为“移入 Rubbish”的文献，并确认它们不适合本次研究方向。仅仅暂时看不懂的文献已标为“暂缓”。</span>
+    </label>
+    <div class="toolbar">
+      <button class="primary" id="export" type="button">导出决定</button>
+      <label class="file-button">导入之前保存的决定<input id="import-file" type="file" accept=".json,application/json"></label>
+      <a href="scores.csv" download="scores.csv">下载评分表</a>
+    </div>
+    <p class="small muted">保存到本批次目录或浏览器下载目录。回来后可以告诉 AI：“我已导出决定，请先核对”，或明确要求：“按本批次决定，把已确认不合适的文献移入 Rubbish。”</p>
+    <p class="small muted">分次阅读时，先导出当前进度，下次导入此文件继续。关闭页面前请导出；页面不依赖浏览器自动保存。</p>
+    <p id="message" role="status"></p>
+  </section>
+</main>
+<script id="batch-data" type="application/json">__BATCH_DATA__</script>
+<script>
+"use strict";
+const payload = JSON.parse(document.getElementById("batch-data").textContent);
+const session = payload.session;
+const items = session.items;
+const labels = {pending: "未处理", keep: "保留", defer: "暂缓", rubbish: "移入 Rubbish"};
+const evidenceLabels = {title: "仅题目", abstract: "摘要", full_text: "正文", insufficient: "待补证据"};
+const state = new Map();
+const confirmed = document.getElementById("review-confirmed");
+const message = document.getElementById("message");
+let visibleItems = [];
+
+function key(row) { return String(row.library_id) + ":" + row.item_key; }
+function element(tag, text, className) {
+  const node = document.createElement(tag);
+  if (text !== undefined) node.textContent = text;
+  if (className) node.className = className;
+  return node;
+}
+function blankState(row) {
+  return {library_id: row.library_id, item_key: row.item_key, record_id: row.record_id,
+          planned_read: false, read_confirmed: false, decision: "pending", reason: ""};
+}
+function tell(text, error) {
+  message.textContent = text;
+  message.className = error ? "error" : "";
+}
+function validateImport(data) {
+  if (!data || data.schema_version !== 1 || data.run_id !== session.run_id ||
+      data.profile_hash !== session.profile_hash) throw new Error("这个文件属于其他批次或研究画像，请选择本批次的决定文件。");
+  if (!Array.isArray(data.decisions) || typeof data.review_confirmed !== "boolean") throw new Error("决定文件格式不完整。");
+  const inventory = new Map(items.map(row => [key(row), row]));
+  const seen = new Set();
+  for (const row of data.decisions) {
+    const ident = key(row);
+    const original = inventory.get(ident);
+    if (!original || seen.has(ident) || row.record_id !== original.record_id) throw new Error("决定文件包含未知、重复或编号不匹配的文献。");
+    if (!Object.hasOwn(labels, row.decision) || typeof row.reason !== "string" ||
+        typeof row.planned_read !== "boolean" || typeof row.read_confirmed !== "boolean") throw new Error("人工判断字段不完整。");
+    if (row.decision === "rubbish" && (!data.review_confirmed || !row.read_confirmed)) throw new Error("移入决定缺少明确的阅读确认。");
+    seen.add(ident);
+  }
+}
+function applyImport(data) {
+  validateImport(data);
+  state.clear();
+  for (const row of items) state.set(key(row), blankState(row));
+  for (const row of data.decisions) state.set(key(row), {
+    library_id: row.library_id, item_key: row.item_key, record_id: row.record_id,
+    planned_read: row.planned_read, read_confirmed: row.read_confirmed,
+    decision: row.decision, reason: row.reason
+  });
+  confirmed.checked = data.review_confirmed;
+}
+function setDecision(row, decision) {
+  const value = state.get(key(row));
+  if (decision === "rubbish" && value.decision !== "rubbish") confirmed.checked = false;
+  value.decision = decision;
+  if (decision !== "rubbish") value.read_confirmed = false;
+}
+function paperLink(row, pdf) {
+  const group = session.scope.library_type === "group";
+  const location = group ? "groups/" + session.scope.group_id : "library";
+  return "zotero://" + (pdf ? "open-pdf" : "select") + "/" + location + "/items/" +
+         (pdf ? row.pdf_key : row.item_key);
+}
+function counts() {
+  const values = Array.from(state.values());
+  const amount = choice => values.filter(row => row.decision === choice).length;
+  document.getElementById("counts").textContent =
+    "共 " + items.length + " 篇 · 当前显示 " + visibleItems.length +
+    " 篇 · 计划阅读 " + values.filter(row => row.planned_read).length +
+    " 篇 · 保留 " + amount("keep") + " · 暂缓 " + amount("defer") +
+    " · 移入 Rubbish " + amount("rubbish") + " · 待补证据 " +
+    items.filter(row => row.score_status === "insufficient").length;
+}
+function draw() {
+  const query = document.getElementById("search").value.trim().toLocaleLowerCase();
+  const filter = document.getElementById("filter").value;
+  const sort = document.getElementById("sort").value;
+  visibleItems = items.filter(row => {
+    const value = state.get(key(row));
+    const match = [row.record_id, row.title, row.authors, row.reason, value.reason].join(" ").toLocaleLowerCase().includes(query);
+    return match && (filter === "all" || (filter === "planned" ? value.planned_read : value.decision === filter));
+  }).sort((a, b) => {
+    if (sort === "title") return a.title.localeCompare(b.title);
+    if (sort === "number") return a.record_id.localeCompare(b.record_id);
+    if (a.score === null || b.score === null) {
+      if (a.score === b.score) return a.record_id.localeCompare(b.record_id);
+      return a.score === null ? 1 : -1;
+    }
+    const comparison = sort === "score-asc" ? a.score - b.score : b.score - a.score;
+    return comparison || a.record_id.localeCompare(b.record_id);
+  });
+  const body = document.getElementById("papers");
+  body.replaceChildren();
+  for (const row of visibleItems) {
+    const value = state.get(key(row));
+    const tr = element("tr");
+    tr.dataset.recordId = row.record_id;
+    tr.dataset.itemKey = row.item_key;
+    const checkCell = element("td");
+    const check = element("input");
+    check.type = "checkbox";
+    check.checked = value.planned_read;
+    check.setAttribute("aria-label", "选择阅读 " + row.record_id);
+    check.addEventListener("change", () => { value.planned_read = check.checked; draw(); });
+    checkCell.append(check);
+    const number = element("td", row.record_id, "number");
+    const paper = element("td", undefined, "paper");
+    paper.append(element("div", row.title, "paper-title"),
+                 element("p", [row.authors, row.year].filter(Boolean).join(" · "), "small muted"));
+    const links = element("div", undefined, "links");
+    const select = element("a", "在 Zotero 中查看");
+    select.href = paperLink(row, false);
+    select.setAttribute("aria-label", "查看 " + row.record_id);
+    links.append(select);
+    if (row.pdf_key) {
+      const pdf = element("a", "阅读 PDF");
+      pdf.href = paperLink(row, true);
+      pdf.setAttribute("aria-label", "阅读 PDF " + row.record_id);
+      links.append(pdf);
+    }
+    paper.append(links);
+    const basis = element("td", undefined, "basis");
+    basis.append(element("span", row.score === null ? "待补证据" : String(row.score) + " / 5", "score"),
+                 element("p", "依据：" + evidenceLabels[row.evidence], "small muted"),
+                 element("p", row.reason));
+    if (row.evidence_locator) basis.append(element("p", row.evidence_locator, "small muted"));
+    const decisionCell = element("td", undefined, "decision-cell");
+    const decision = element("select");
+    decision.setAttribute("aria-label", "人工判断 " + row.record_id);
+    for (const [choice, label] of Object.entries(labels)) {
+      const option = element("option", label);
+      option.value = choice;
+      decision.append(option);
+    }
+    decision.value = value.decision;
+    decision.addEventListener("change", () => { setDecision(row, decision.value); draw(); });
+    decisionCell.append(decision);
+    const reasonCell = element("td", undefined, "reason-cell");
+    const reason = element("textarea");
+    reason.value = value.reason;
+    reason.placeholder = "例如：方法不适用；或暂时看不懂，先暂缓";
+    reason.setAttribute("aria-label", "判断原因 " + row.record_id);
+    reason.addEventListener("input", () => { value.reason = reason.value; });
+    reasonCell.append(reason);
+    tr.append(checkCell, number, paper, basis, decisionCell, reasonCell);
+    body.append(tr);
+  }
+  if (!visibleItems.length) {
+    const row = element("tr");
+    const cell = element("td", "当前筛选没有文献。", "empty");
+    cell.colSpan = 6;
+    row.append(cell);
+    body.append(row);
+  }
+  counts();
+}
+function exportData() {
+  const hasMoves = Array.from(state.values()).some(row => row.decision === "rubbish");
+  if (hasMoves && !confirmed.checked) {
+    tell("请先阅读拟移入的文献，并勾选阅读确认。暂时看不懂的文献请选择“暂缓”。", true);
+    confirmed.focus();
+    return;
+  }
+  const data = {
+    schema_version: 1, run_id: session.run_id, profile_hash: session.profile_hash,
+    exported_at: new Date().toISOString(), review_confirmed: confirmed.checked,
+    decisions: items.map(row => {
+      const value = state.get(key(row));
+      return {...value, read_confirmed: value.decision === "rubbish" ? confirmed.checked : value.read_confirmed};
+    })
+  };
+  const name = "decisions-" + session.run_id + ".json";
+  const blob = new Blob([JSON.stringify(data, null, 2) + "\n"], {type: "application/json;charset=utf-8"});
+  const url = URL.createObjectURL(blob);
+  const link = element("a");
+  link.href = url;
+  link.download = name;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 30000);
+  tell("已生成下载文件：" + name + "\n请确认浏览器已保存文件，再回到 AI。本次导出只保存决定，未执行 Zotero 移动。");
+}
+
+for (const row of items) state.set(key(row), blankState(row));
+if (payload.decisions) {
+  try { applyImport(payload.decisions); } catch (error) { tell(error.message, true); }
+}
+document.getElementById("batch-info").textContent = "批次 " + session.run_id + " · 本地文件，可分次阅读与保存";
+document.getElementById("incomplete").hidden =
+  session.coverage.enumeration_complete && session.coverage.pending_scores === 0;
+const profile = document.getElementById("profile");
+for (const [label, value] of [
+  ["研究方向", session.profile.research_direction], ["当前问题", session.profile.current_question],
+  ["研究阶段", session.profile.stage], ["方法基础", session.profile.method_background],
+  ["期望帮助", session.profile.desired_help],
+  ["筛选范围", session.scope.mode === "library" ? "指定文库全部文献" :
+    "分类 ID：" + session.scope.collection_ids.join(", ") + (session.scope.include_subcollections ? "（含已列入范围的子分类）" : "（不含子分类）")]
+]) profile.append(element("dt", label), element("dd", value));
+for (const id of ["search", "filter", "sort"])
+  document.getElementById(id).addEventListener(id === "search" ? "input" : "change", draw);
+document.getElementById("select-visible").addEventListener("click", () => {
+  for (const row of visibleItems) state.get(key(row)).planned_read = true;
+  draw();
+});
+document.getElementById("clear-selection").addEventListener("click", () => {
+  for (const value of state.values()) value.planned_read = false;
+  draw();
+});
+document.getElementById("apply-bulk").addEventListener("click", () => {
+  const decision = document.getElementById("bulk-decision").value;
+  for (const row of items) if (state.get(key(row)).planned_read) setDecision(row, decision);
+  draw();
+  tell("已更新勾选文献的人工判断。导出后可保存这次进度。");
+});
+document.getElementById("export").addEventListener("click", exportData);
+document.getElementById("import-file").addEventListener("change", async event => {
+  const file = event.target.files[0];
+  if (!file) return;
+  try {
+    applyImport(JSON.parse(await file.text()));
+    draw();
+    tell("已载入本批次的决定，可以继续阅读和判断。");
+  } catch (error) { tell(error.message, true); }
+  event.target.value = "";
+});
+draw();
+</script>
+</body>
+</html>

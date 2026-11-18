@@ -1,0 +1,4 @@
+interface:
+  display_name: "Zotero Rubbish 文献筛选"
+  short_description: "根据研究画像评分，用本地页面完成人工阅读判断，并可追溯地移入 Rubbish"
+  default_prompt: "使用 $zotero-rubbish，根据我本次提供的研究方向和画像筛选文献，评分后等待我的阅读与决定。"
