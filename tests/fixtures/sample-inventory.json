@@ -1,0 +1,105 @@
+{
+  "profile": {
+    "research_direction": "虚构演示：非均匀材料的热传导建模",
+    "current_question": "寻找可以学习和复现的热传导数值方法",
+    "stage": "虚构示例：刚开始学习该问题",
+    "method_background": "了解基础微分方程和数值计算",
+    "desired_help": "清楚的方法推导与可以复现的例子"
+  },
+  "scope": {
+    "library_id": 1,
+    "library_type": "user",
+    "mode": "collection",
+    "collection_ids": [10, 11],
+    "include_subcollections": true,
+    "excluded_collection_ids": [99, 100]
+  },
+  "coverage": {
+    "enumeration_complete": true,
+    "pages_read": 2,
+    "source_total_count": 6,
+    "note": "仅为虚构离线测试数据，不代表真实文献。"
+  },
+  "items": [
+    {
+      "item_id": 101,
+      "item_key": "ABCD2345",
+      "title": "虚构文献 A：食品包装市场调查",
+      "authors": "示例作者 A",
+      "year": "2026",
+      "collections": [{"id": 10, "path": "示例主题"}, {"id": 12, "path": "其他主题"}],
+      "attachment_keys": ["PQRS2345"],
+      "note_keys": ["TUVW2345"],
+      "pdf_key": "PQRS2345",
+      "score": 1,
+      "reason": "摘要主要讨论市场调查，对当前热传导方法问题帮助有限。",
+      "evidence": "abstract",
+      "evidence_locator": "虚构摘要"
+    },
+    {
+      "item_id": 102,
+      "item_key": "BCDE2345",
+      "title": "虚构文献 B：非均匀热传导的有限体积方法",
+      "authors": "示例作者 B",
+      "year": "2025",
+      "collections": [{"id": 11, "path": "示例主题/数值方法"}],
+      "attachment_keys": [],
+      "note_keys": [],
+      "score": 5,
+      "reason": "摘要给出与当前问题直接相关的方法推导和复现例子。",
+      "evidence": "abstract",
+      "evidence_locator": "虚构摘要"
+    },
+    {
+      "item_id": 103,
+      "item_key": "CDEF2345",
+      "title": "虚构文献 C：待补摘要的材料方法",
+      "authors": "示例作者 C",
+      "year": "2024",
+      "collections": [{"id": 10, "path": "示例主题"}],
+      "attachment_keys": [],
+      "note_keys": [],
+      "score": null,
+      "reason": "没有摘要或正文，题目不足以判断方法是否适用。",
+      "evidence": "insufficient",
+      "evidence_locator": "只有题目"
+    },
+    {
+      "item_id": 104,
+      "item_key": "DEFG2345",
+      "title": "虚构文献 D：稳态传热的基础推导",
+      "authors": "示例作者 D",
+      "year": "2023",
+      "collections": [{"id": 10, "path": "示例主题"}, {"id": 11, "path": "示例主题/数值方法"}],
+      "attachment_keys": [],
+      "note_keys": [],
+      "score": 3,
+      "reason": "摘要表明可用于补充基础，但对非均匀材料的处理较少。",
+      "evidence": "abstract",
+      "evidence_locator": "虚构摘要"
+    },
+    {
+      "item_id": 104,
+      "item_key": "DEFG2345",
+      "title": "虚构文献 D：稳态传热的基础推导",
+      "authors": "示例作者 D",
+      "year": "2023",
+      "collections": [{"id": 10, "path": "示例主题"}, {"id": 11, "path": "示例主题/数值方法"}],
+      "attachment_keys": [],
+      "note_keys": [],
+      "score": 3,
+      "reason": "摘要表明可用于补充基础，但对非均匀材料的处理较少。",
+      "evidence": "abstract",
+      "evidence_locator": "虚构摘要"
+    },
+    {
+      "item_id": 105,
+      "item_key": "EFGH2345",
+      "title": "虚构文献 E：已隔离的示例",
+      "collections": [{"id": 99, "path": "Rubbish"}],
+      "score": null,
+      "reason": "已在 Rubbish，默认跳过。",
+      "evidence": "insufficient"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+.zotero-rubbish/
+_local/
+test-results/
+playwright-report/
+*.pdf
+*.sqlite*
+*.db
+*.log
+.DS_Store
+Thumbs.db
