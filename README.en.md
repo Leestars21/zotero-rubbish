@@ -20,9 +20,17 @@ annotations, and reading records.
   restore them later.
 
 A simple 0–5 research-fit score includes a rationale and actual evidence.
-Metadata and abstracts come first; targeted body reading is used when needed.
-Insufficient evidence is marked separately. Low scores do not automatically
-move papers. Papers you do not understand yet can be deferred.
+Check existing MinerU data before scoring. **Prefer usable parsed content
+matched to the paper's live identities**, reading its original abstract and
+relevant body passages. A missing Zotero abstract does not prevent scoring
+from a MinerU abstract or body evidence. Record abstract and body reading
+separately, with source files and section or line locators.
+
+Without usable MinerU data, fall back to the Zotero abstract and other readable
+body sources. Mark insufficient evidence only when the available material
+cannot support a judgment. Reuse existing parses without running MinerU or
+backfilling abstracts. Low scores do not automatically move papers. Papers
+you do not understand yet can be deferred.
 
 ## The reading page
 
@@ -136,6 +144,9 @@ If Codex skill-creator is installed, its `quick_validate.py` can check the
 inner `zotero-rubbish/` skill folder. Browser checks cover searching, stable
 numbers after sorting, batch decisions, reading confirmation, export/reimport,
 and desktop and narrow-screen layouts.
+Regression tests also cover accepting MinerU abstract/body scores without a
+Zotero abstract and preserving source locators in sessions and reading pages.
+The AI matches and reads caches through existing interfaces.
 
 Report problems or suggestions through
 [Issues](https://github.com/Leestars21/zotero-rubbish/issues), or submit a PR.

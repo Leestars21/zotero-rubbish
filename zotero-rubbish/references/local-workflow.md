@@ -34,6 +34,43 @@ Zotero，也不会把 JSON 文件中的字段当作真实用户授权。
 范围需要新批次。操作日志产生后，不能重写该批次的评分证据。
 文件读写采用 UTF-8，CSV 带 BOM，生成页面不加载外部资源。
 
+## 评分证据：优先复用 MinerU
+
+评分前先核实已有 MinerU 数据，存在可用解析内容时优先采用。Zotero 的
+`abstractNote` 为空不等于证据不足：解析出的原始摘要或足够的正文段落
+都可以支持评分。分数由 AI 结合本次画像和实际读取材料给出；`review.py`
+接收并校验分数，不负责查找缓存、解析论文或计算评分。
+
+1. 通过现有 Zotero 接口读取文库 ID、母条目 ID/key、PDF 附件 ID/key
+   及实际数据目录，使用当前接口支持的只读方式。不要固定用户路径，也
+   不要把 Codex 所在主机的目录当作远程 Zotero 主机的数据目录。
+2. LLM for Zotero 的常见缓存目录为
+   `<data-dir>/llm-for-zotero-mineru/<attachmentId>/`，数字是 PDF 附件
+   ID，不是母条目 ID 或 citation key。存在 `_llm_source.json` 时，
+   核对其中的 `attachmentId`、`attachmentKey`、`parentItemKey`，以及
+   可选的 `libraryID`；已提供的身份字段必须与实时条目一致。旧缓存没有
+   来源记录时，只使用实时接口已确认的同数据目录、对应附件 ID 路径，
+   并记录来源记录缺失。身份无法核实、记录损坏或冲突时不使用该缓存。
+   存在 `_llm_write_pending.json` 的缓存也不可读取为评分证据。
+3. 多个 PDF 有有效缓存时，使用本次已明确选定的 `pdf_key`；尚未选定则
+   请用户确认附件，不按题目、文件名或新旧程度猜测。所选附件自身的身份
+   冲突不能通过指定 key 绕过。
+4. 当前接口支持明确指定 MinerU 来源时，优先使用该接口，并核实返回的
+   实际来源。例如，`library_read` 的当前 schema 支持
+   `paperContexts.contentSourceMode="mineru"` 时，可同时传入已核实的
+   母条目、附件和缓存目录。接口不支持或无法取得缓存内容时，使用主机上
+   已核实的本地文件只读入口。优先读 `full.md`，兼容旧版 `_content.md`；
+   只有 JSON 时，读 `content_list.json` 或唯一的 `*_content_list.json`
+   中的原始文本块。多个候选 JSON 无法确定时报告歧义，不任意拼接。
+5. 先读原始摘要，再按本次问题补读方法、结果等相关段落。解析内容没有
+   摘要标签时，可直接依据足够的正文评分，不必先生成摘要或回填 Zotero。
+   区分原文与 AI 判断；遇到影响理解的 OCR 错误或缺失，补查其他可读
+   来源并说明影响，不编造或静默修复证据。
+6. 缓存缺失、不可读、正在写入或身份冲突时，记录原因，回退到 Zotero
+   摘要和现有接口可读取的 PDF/其他正文。仅题目判断需说明暂定性质；
+   只有实际证据不足时才将分数设为 `null`，不得仅因摘要字段为空而拒绝
+   评分。不要自动运行 MinerU、下载或复制 PDF、改写缓存或回填元数据。
+
 ## 评分输入格式
 
 `profile` 的五个文本字段：`research_direction`、`current_question`、
@@ -80,6 +117,18 @@ Zotero，也不会把 JSON 文件中的字段当作真实用户授权。
 `null`。`collections` 记录全部当前归属，不能只保留筛选分类。
 子条目由枚举接口解析到母条目，脚本只跳过附件/笔记行，不替代母条目查询。
 若同一条目重复出现且分数冲突，先解决判断冲突再生成结果。
+
+`evidence` 表示实际读取程度，不表示解析工具。只读 MinerU 原始摘要时
+用 `abstract`，实际使用正文段落时用 `full_text`；后者不代表通读整篇。
+`evidence_locator` 保持字符串格式，记录 MinerU 来源、母条目/附件身份、
+实际文件绝对路径及章节、行范围或 JSON 指针。页码仅在来源提供时记录。
+例如以下虚构正文定位；实际输出替换为本轮核实的身份、路径和范围：
+
+    "evidence": "full_text",
+    "evidence_locator": "MinerU; libraryID=1; parentItemKey=ABCD2345; attachmentId=201; attachmentKey=PQRS2345; cache_file=D:/ExampleZotero/llm-for-zotero-mineru/201/full.md; section=Methods; lines=120-145"
+
+缓存存在、旧评分或旧 AI 摘要都不能代替本轮实际读取证据。回退读取时在
+理由或定位中说明缓存不可用的原因，并标明最终使用的来源。
 
 ## 人工决定格式与等待点
 

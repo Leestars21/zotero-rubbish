@@ -141,13 +141,55 @@ class WorkflowTests(unittest.TestCase):
         self.assertEqual(len(result["items"]), 4)
         self.assertEqual(len(result["coverage"]["skipped"]), 3)
 
-    def test_absent_abstract_is_null_and_not_zero(self):
+    def test_insufficient_evidence_is_null_and_not_zero(self):
         row = next(row for row in self.session["items"] if row["item_key"] == "CDEF2345")
         self.assertIsNone(row["score"])
         data = sample()
         data["items"][2]["score"] = 0
         with self.assertRaises(ValueError):
             review.normalize_input(data)
+
+    def test_mineru_evidence_allows_score_without_zotero_abstract(self):
+        for evidence in ("abstract", "full_text"):
+            with self.subTest(evidence=evidence):
+                data = sample()
+                source = data["items"][2]
+                source.update(abstractNote="", score=4, score_status="scored",
+                              evidence=evidence, reason="虚构 MinerU 原文支持当前方法问题。",
+                              evidence_locator="MinerU; attachmentId=203; section=" + evidence)
+                session = review.normalize_input(data)
+                row = next(row for row in session["items"] if row["item_key"] == source["item_key"])
+                self.assertEqual(row["score"], 4)
+                self.assertEqual(row["score_status"], "scored")
+                self.assertEqual(row["evidence"], evidence)
+                self.assertEqual(row["evidence_locator"], source["evidence_locator"])
+                self.assertEqual(session["status"], "waiting_review")
+                self.assertEqual(self.fake.calls, [])
+
+    def test_mineru_body_score_and_locator_survive_saved_outputs(self):
+        data = sample()
+        source = data["items"][2]
+        locator = ("MinerU; libraryID=1; parentItemKey=CDEF2345; attachmentId=203; "
+                   "attachmentKey=JKLM2345; cache_file=" +
+                   str(self.project / "fictional-cache" / "203" / "full.md") +
+                   "; section=数值方法; lines=10-22")
+        source.update(abstractNote="", score=4, score_status="scored", evidence="full_text",
+                      reason="虚构正文给出适用的数值方法，即使摘要字段为空也能判断。",
+                      evidence_locator=locator, attachment_keys=["JKLM2345"], pdf_key="JKLM2345")
+        path = review.create_run(data, self.project, "fictional-mineru-body")
+        session = review.read_session(path)
+        row = next(row for row in session["items"] if row["item_key"] == source["item_key"])
+        self.assertEqual(row["score"], 4)
+        self.assertEqual(row["evidence"], "full_text")
+        self.assertEqual(row["evidence_locator"], locator)
+        self.assertEqual(row["pdf_key"], "JKLM2345")
+        html = (path.parent / "review.html").read_text(encoding="utf-8")
+        self.assertIn(json.dumps(locator, ensure_ascii=False)[1:-1], html)
+        with (path.parent / "scores.csv").open(encoding="utf-8-sig", newline="") as file:
+            csv_row = next(row for row in csv.DictReader(file) if row["条目key"] == source["item_key"])
+        self.assertEqual(csv_row["适配分"], "4")
+        self.assertEqual(csv_row["读取依据"], "full_text")
+        self.assertEqual(self.fake.calls, [])
 
     def test_incomplete_pagination_cannot_plan_a_move(self):
         data = sample()

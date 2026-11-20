@@ -37,15 +37,23 @@ the output project; local run data stays ignored.
 3. Exclude trash and items belonging to top-level !Rubbish or its descendants
    by default. Report skipped records. Explicit !Rubbish restoration uses the
    restoration workflow, not ordinary screening.
-4. Read metadata and abstracts first. Read targeted body passages when needed;
-   do not claim to have read full texts from titles, abstracts, or old notes.
+4. Read metadata and check for existing MinerU data before assigning scores.
+   Follow [references/local-workflow.md](references/local-workflow.md) for
+   cache matching, source selection and evidence recording. Prefer usable
+   MinerU data matched to the live parent/PDF identities: read the original
+   abstract, then targeted method/result passages as needed. If no usable
+   cache exists, record why and fall back to the Zotero abstract and other
+   readable body passages. A missing Zotero abstract does not prevent scoring
+   from a parsed abstract or sufficient body evidence. Reuse existing data;
+   do not run MinerU or backfill Zotero fields as part of screening.
+   Do not claim full-text reading from cache presence, an abstract, or old notes.
    Use a single integer 0–5 research-fit score with a brief rationale and an
    evidence locator. Judge direction fit, method applicability, and help for
    the user's current stage together; no extra weighted rubric is required.
    Mark genuinely insufficient evidence with null, not zero.
-5. Read [references/local-workflow.md](references/local-workflow.md) to create
-   the local session, CSV and offline reading page. Intermediate incomplete
-   inventories may be checkpointed but must be labelled incomplete.
+5. Use that reference to create the local session, CSV and offline reading
+   page. Intermediate incomplete inventories may be checkpointed but must be
+   labelled incomplete.
 6. Present the result directory, coverage, score rationale, and page. Ask the
    user to choose and read papers, then export decisions. **End the turn here
    and wait for human input.** Do not schedule polling, keep waiting in a loop,
