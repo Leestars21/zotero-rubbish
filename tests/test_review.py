@@ -31,7 +31,7 @@ class FakeZotero:
         self.calls.append(("move", key))
         row = self.items[key]
         originals = row["collections"]
-        row["collections"] = ([originals[-1]] if partial and originals else []) + [{"id": target, "path": "Rubbish"}]
+        row["collections"] = ([originals[-1]] if partial and originals else []) + [{"id": target, "path": "!Rubbish"}]
         if timeout:
             raise TimeoutError("simulated response lost after write")
         return {"action_id": "fictional-action-" + str(len(self.calls))}
@@ -49,7 +49,7 @@ class FakeZotero:
     def snapshot(self, session, keys=None):
         return {
             "library_id": session["scope"]["library_id"],
-            "target_collection": {"library_id": 1, "id": 99, "path": "Rubbish", "parent_id": None},
+            "target_collection": {"library_id": 1, "id": 99, "path": "!Rubbish", "parent_id": None},
             "available_collection_ids": [10, 11, 12, 99, 100, 77],
             "items": [self.read(key) for key in (keys or self.items)],
         }
@@ -127,7 +127,7 @@ class WorkflowTests(unittest.TestCase):
     def test_parent_deduplication_and_rubbish_exclusion(self):
         self.assertEqual(len(self.session["items"]), 4)
         self.assertEqual(self.session["coverage"]["received_rows"], 6)
-        self.assertEqual(self.session["coverage"]["skipped"][0]["reason"], "Rubbish/excluded collection")
+        self.assertEqual(self.session["coverage"]["skipped"][0]["reason"], "!Rubbish/excluded collection")
         self.assertEqual(self.session["status"], "waiting_review")
         self.assertEqual(self.fake.calls, [])
 
@@ -255,8 +255,8 @@ class WorkflowTests(unittest.TestCase):
 
     def test_changed_library_or_target_is_rejected(self):
         for target in (
-            {"library_id": 2, "id": 99, "path": "Rubbish", "parent_id": None},
-            {"library_id": 1, "id": 99, "path": "Topic/Rubbish", "parent_id": 10},
+            {"library_id": 2, "id": 99, "path": "!Rubbish", "parent_id": None},
+            {"library_id": 1, "id": 99, "path": "Topic/!Rubbish", "parent_id": 10},
         ):
             snapshot = self.fake.snapshot(self.session)
             snapshot["target_collection"] = target

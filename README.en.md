@@ -7,7 +7,7 @@ Project website: [Leestars21/zotero-rubbish](https://github.com/Leestars21/zoter
 Score Zotero literature against the research direction and profile you supply for
 this invocation, then make your reading decisions in a local page. After your
 explicit execution instruction, the AI moves approved papers out of all original
-collections into **Rubbish**, preserving the original items, PDFs, notes,
+collections into **!Rubbish**, preserving the original items, PDFs, notes,
 annotations, and reading records.
 
 ## When to use it
@@ -30,7 +30,7 @@ No new plugin or permanent service is needed. Open the generated `review.html`:
 
 1. Search, sort, and select papers to read; record numbers remain stable.
 2. Follow links to Zotero items or their PDFs.
-3. Mark keep, defer, or move to Rubbish, individually or in a batch, with optional reasons.
+3. Mark keep, defer, or move to !Rubbish, individually or in a batch, with optional reasons.
 4. Confirm you have read proposed rejections and export the decisions together.
 5. Return to the AI for a concrete preview. Collection changes require your
    explicit execution instruction.
@@ -40,7 +40,7 @@ For separate reading sessions, export progress and import it next time. Save
 before closing; the page does not rely on automatic saving.
 
 **Removal rule:** even when screening one collection, the default removes all
-original memberships from approved papers, leaving only Rubbish. The preview
+original memberships from approved papers, leaving only !Rubbish. The preview
 lists those memberships. Explicitly request any memberships you want to retain
 before execution. PDFs and notes stay in Zotero; they are not copied into the
 results directory.
@@ -102,7 +102,7 @@ Resume the same batch:
 Execute after checking:
 
     Execute this batch's read-confirmed decisions. Move approved papers out of
-    all original collections into Rubbish.
+    all original collections into !Rubbish.
 
 Restore later:
 
@@ -118,7 +118,7 @@ states shown separately.
 
 All original memberships are saved before a move and checked afterward.
 Timeouts trigger verification before resuming. Restoration adds back original
-memberships before removing Rubbish that this workflow added, preserving later
+memberships before removing !Rubbish that this workflow added, preserving later
 user-added memberships. If an original collection was deleted, you choose the
 restoration target.
 

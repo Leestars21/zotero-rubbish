@@ -147,7 +147,7 @@ def normalize_input(data, previous=None):
         elif row.get("item_type") in {"attachment", "note"}:
             skip = "child-item; enumerate its parent separately"
         elif memberships & excluded:
-            skip = "Rubbish/excluded collection"
+            skip = "!Rubbish/excluded collection"
         elif scope["mode"] == "collection" and not memberships & selected:
             skip = "outside selected collection tree"
         if skip:
@@ -268,7 +268,7 @@ def validate_decisions(data, session):
         require(isinstance(reason, str), "Decision reason must be text")
         if row["decision"] == "rubbish":
             require(data["review_confirmed"] and row["read_confirmed"],
-                    "Read the paper and explicitly confirm before requesting a Rubbish move")
+                    "Read the paper and explicitly confirm before requesting a !Rubbish move")
         result.append({key: row[key] for key in
                        ("library_id", "item_key", "record_id", "planned_read", "read_confirmed", "decision")}
                       | {"reason": reason})
@@ -377,11 +377,11 @@ def prepare_move(session, decisions, snapshot):
     decisions = validate_decisions(decisions, session)
     target = snapshot.get("target_collection", {})
     require(target.get("library_id") == session["scope"]["library_id"], "Target must be in the same library")
-    require(target.get("path") == "Rubbish" and target.get("parent_id") is None,
-            "Resolve the top-level Rubbish collection")
+    require(target.get("path") == "!Rubbish" and target.get("parent_id") is None,
+            "Resolve the top-level !Rubbish collection")
     target_id = target.get("id")
     if target_id is not None:
-        positive_id(target_id, "Rubbish collection ID")
+        positive_id(target_id, "!Rubbish collection ID")
     current = snapshot_items(snapshot, session)
     inventory = {identity(row): row for row in session["items"]}
     result = []
@@ -467,7 +467,7 @@ def record_event(path, raw):
             require(any(identity(row) == ident and row["decision"] == "rubbish" for row in decisions["decisions"]),
                     "This item was not selected by a confirmed human decision")
             require(set(event["expected_collection_ids"]) == {event.get("rubbish_collection_id")},
-                    "A move must leave only the verified Rubbish membership")
+                    "A move must leave only the verified !Rubbish membership")
         event["status"] = "planned"
     else:
         require(attempts and attempts[0]["phase"] == "intent", "Save intent before calling a write tool")
@@ -510,7 +510,7 @@ def prepare_restore(session, journal, snapshot, record_ids=None):
                 else:
                     baseline = baselines[ident]
                     require(baseline["rubbish_collection_id"] == event["rubbish_collection_id"],
-                            "Rubbish target changed between attempts")
+                            "!Rubbish target changed between attempts")
                     additional = [row for row in event["before_collections"]
                                   if not baseline["rubbish_added"] or row["id"] != baseline["rubbish_collection_id"]]
                     baseline["before_collections"] = collections(baseline["before_collections"] + additional)
@@ -606,7 +606,7 @@ def write_report(path):
         "waiting_authorization": "等待执行指令",
     }
     lines = [
-        "# Rubbish 操作记录", "", f"批次：{session['run_id']}", "",
+        "# !Rubbish 操作记录", "", f"批次：{session['run_id']}", "",
         f"当前阶段：{stage_labels.get(session['status'], session['status'])}", "",
         "下面只汇总已记录的尝试；操作回执不等于核实成功。原分类和恢复依据保存在 operations.jsonl。", "",
         "| 编号 | 文献 | 操作 | 状态 | 原分类 |", "| --- | --- | --- | --- | --- |",

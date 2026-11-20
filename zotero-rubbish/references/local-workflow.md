@@ -48,7 +48,7 @@ Zotero，也不会把 JSON 文件中的字段当作真实用户授权。
 - `mode`：`library` 或 `collection`。
 - `collection_ids`：筛选集合；包含子分类时提前展开成实际 ID 列表。
 - `include_subcollections`：布尔值。
-- `excluded_collection_ids`：顶层 Rubbish 及其子分类的实际 ID 列表。
+- `excluded_collection_ids`：顶层 !Rubbish 及其子分类的实际 ID 列表。
 
 `coverage.enumeration_complete` 必须来自实际分页检查；可附
 `pages_read`、`source_total_count` 和说明。跨分类查询的总数可能重复，
@@ -116,7 +116,7 @@ Zotero，也不会把 JSON 文件中的字段当作真实用户授权。
 ## 新鲜快照与日志格式
 
 移动快照包含 `library_id`、`target_collection` 和 `items`。
-目标结构为 `{"library_id":1,"id":99,"path":"Rubbish","parent_id":null}`；
+目标结构为 `{"library_id":1,"id":99,"path":"!Rubbish","parent_id":null}`；
 尚不存在时 `id` 为 `null`，只产生创建目标的预览，不执行创建。
 `items` 只需要本次决定涉及的条目，保留其 ID/key、全部 `collections`、
 `attachment_keys`、`note_keys`；这些关联必须实际读取。分类字段必须显式
@@ -144,7 +144,7 @@ Zotero，也不会把 JSON 文件中的字段当作真实用户授权。
 
 恢复快照还应包含 `available_collection_ids`，来自当前完整分类树，用来核实
 原分类仍存在。恢复预览基于完整日志和新鲜快照，补回原归属、保留后来新增的
-归属，只移除本次操作新增的 Rubbish 归属。部分完成后续办也保留最初来源。
+归属，只移除本次操作新增的 !Rubbish 归属。部分完成后续办也保留最初来源。
 任何写入与续办都由 AI 经现有接口执行，脚本不执行计划或自动重试。
 日志更新会同步会话阶段：执行中、未核实、部分完成、移入已完成、已恢复等，
 续办时同时核对最新日志，不能仅根据旧的人工决定再次执行。

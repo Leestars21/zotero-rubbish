@@ -1,12 +1,12 @@
 ---
 name: zotero-rubbish
-description: Score Zotero literature against a research profile supplied for this invocation, guide human reading through a local review page, and move only explicitly approved items out of their original collections into a recoverable Rubbish collection. Use for research-fit screening and user-directed quarantine or restoration.
+description: Score Zotero literature against a research profile supplied for this invocation, guide human reading through a local review page, and move only explicitly approved items out of their original collections into a recoverable !Rubbish collection. Use for research-fit screening and user-directed quarantine or restoration.
 ---
 
 # Zotero Rubbish
 
 Support a small human-in-the-loop workflow. Research-fit scores guide reading;
-the human decides what belongs in Rubbish. Preserve the same Zotero parent item,
+the human decides what belongs in !Rubbish. Preserve the same Zotero parent item,
 PDFs, notes, annotations, and reading records.
 
 ## Intake: before each invocation
@@ -34,8 +34,8 @@ the output project; local run data stays ignored.
    Resolve attachments/notes to literature parents; deduplicate the same
    library ID + item key across collections. Do not merge different Zotero
    records just because their DOI or title matches.
-3. Exclude trash and items belonging to top-level Rubbish or its descendants
-   by default. Report skipped records. Explicit Rubbish restoration uses the
+3. Exclude trash and items belonging to top-level !Rubbish or its descendants
+   by default. Report skipped records. Explicit !Rubbish restoration uses the
    restoration workflow, not ordinary screening.
 4. Read metadata and abstracts first. Read targeted body passages when needed;
    do not claim to have read full texts from titles, abstracts, or old notes.
@@ -49,7 +49,7 @@ the output project; local run data stays ignored.
 6. Present the result directory, coverage, score rationale, and page. Ask the
    user to choose and read papers, then export decisions. **End the turn here
    and wait for human input.** Do not schedule polling, keep waiting in a loop,
-   create Rubbish, write notes/tags, or move papers because of low scores.
+   create !Rubbish, write notes/tags, or move papers because of low scores.
 
 Score anchors: 0 clearly outside the requested research; 1 low fit; 2 potentially
 limited help; 3 relevant and usable; 4 highly relevant; 5 directly advances the
@@ -74,7 +74,7 @@ do not turn lack of understanding into rejection.
 Importing or exporting decisions grants no execution authority. Read
 [references/zotero-operations.md](references/zotero-operations.md) before
 preparing any membership change. Show a concrete preview of the papers, their
-current original collections, and target Rubbish.
+current original collections, and target !Rubbish.
 
 - If the user has only saved/exported decisions, ask whether to execute this
   preview, then stop and wait.
@@ -89,7 +89,7 @@ current original collections, and target Rubbish.
 ## Execute, verify, and restore
 
 Only membership changes and, when required by the approved move, creation of a
-same-library top-level Rubbish are in scope. Never delete/trash items, recreate
+same-library top-level !Rubbish are in scope. Never delete/trash items, recreate
 references, move PDF files, rename theme collections, modify notes or annotations,
 or write Zotero's database directly.
 
@@ -108,7 +108,7 @@ capability; do not launch Zotero or change plugin settings unasked.
 
 For a human-requested restoration, use this run's journal, re-read current
 state, preview the exact additions/removals and obtain applicable authorization.
-Add back removed original memberships before removing Rubbish that this workflow
+Add back removed original memberships before removing !Rubbish that this workflow
 added. Preserve later user-added memberships and child associations. Missing
 original collections require the user's decision; do not invent replacements.
 Keep results and operation records locally; do not copy PDFs or publish library
